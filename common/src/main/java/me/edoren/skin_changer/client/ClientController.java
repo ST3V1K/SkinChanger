@@ -1,5 +1,6 @@
 package me.edoren.skin_changer.client;
 
+import com.mojang.blaze3d.platform.NativeImage;
 import dev.architectury.event.events.client.ClientTickEvent;
 import me.edoren.skin_changer.client.api.ISkin;
 import me.edoren.skin_changer.client.api.SkinLoaderService;
@@ -11,6 +12,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.UUID;
@@ -62,19 +64,23 @@ public class ClientController {
 
     public CustomSkinTexture getOrCreateTexture(ByteBuffer data, ISkin skin) {
         if (!textures.containsKey(data)) {
-            CustomSkinTexture texture = new CustomSkinTexture(generateRandomLocation(), data);
-            Minecraft.getInstance().getTextureManager().register(texture.getLocation(), texture);
-            textures.put(data, texture);
+            try (NativeImage image = NativeImage.read(data)) {
+                CustomSkinTexture texture = new CustomSkinTexture(generateRandomLocation(), image);
+                Minecraft.getInstance().getTextureManager().register(texture.getLocation(), texture);
+                textures.put(data, texture);
 
-            if (skin != null) {
-                skin.setRemovalListener(s -> {
-                    if (data == s.getData()) {
-                        Minecraft.getInstance().execute(() -> {
-                            Minecraft.getInstance().getTextureManager().release(texture.getLocation());
-                            textures.remove(data);
-                        });
-                    }
-                });
+                if (skin != null) {
+                    skin.setRemovalListener(s -> {
+                        if (data == s.getData()) {
+                            Minecraft.getInstance().execute(() -> {
+                                Minecraft.getInstance().getTextureManager().release(texture.getLocation());
+                                textures.remove(data);
+                            });
+                        }
+                    });
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
         return textures.get(data);

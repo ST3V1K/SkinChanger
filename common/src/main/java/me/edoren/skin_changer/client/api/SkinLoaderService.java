@@ -1,5 +1,6 @@
 package me.edoren.skin_changer.client.api;
 
+import com.mojang.blaze3d.platform.NativeImage;
 import me.edoren.skin_changer.client.ImageUtils;
 import me.edoren.skin_changer.common.NetworkContext;
 import me.edoren.skin_changer.common.SharedPool;

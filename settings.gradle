@@ -11,4 +11,3 @@ rootProject.name = 'skin_changer'
 
 include 'common'
 include 'fabric'
-include 'neoforge'

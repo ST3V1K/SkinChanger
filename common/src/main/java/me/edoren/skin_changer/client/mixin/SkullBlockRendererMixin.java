@@ -16,8 +16,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(SkullBlockRenderer.class)
 public class SkullBlockRendererMixin {
-    @Inject(method = "getRenderType", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/RenderType;entityTranslucent(Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/renderer/RenderType;", shift = At.Shift.AFTER), cancellable = true)
-    private static void entityTranslucentInjected(SkullBlock.Type type, ResolvableProfile resolvableProfile, CallbackInfoReturnable<RenderType> cir) {
+
+    @Inject(
+        method = "getRenderType(Lnet/minecraft/world/level/block/SkullBlock$Type;Lnet/minecraft/world/item/component/ResolvableProfile;Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/renderer/RenderType;",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/renderer/RenderType;entityTranslucent(Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/renderer/RenderType;",
+            shift = At.Shift.AFTER
+        ),
+        cancellable = true
+    )
+    private static void entityTranslucentInjected(SkullBlock.Type type, ResolvableProfile resolvableProfile, ResourceLocation resourceLocation, CallbackInfoReturnable<RenderType> cir) {
         ResourceLocation loc = ClientController.GetInstance().getLocationSkin(new PlayerModel(resolvableProfile.gameProfile()));
         if (loc != null) {
             cir.setReturnValue(RenderType.entityTranslucent(loc));
